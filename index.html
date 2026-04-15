@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halima Tuj Sumaiya 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&family=Crimson+Text:ital@1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --rose: #e8a0a8;
+    --deep-rose: #c0566b;
+    --blush: #f5d0d8;
+    --gold: #d4a853;
+    --cream: #fdf5ef;
+    --dark: #2a1520;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Crimson Text', serif;
+    background: var(--dark);
+  }
+
+  #bg-canvas { position: fixed; inset: 0; z-index: 0; }
+
+  .page {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: translateY(20px);
+  }
+  .page.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+  #home { text-align: center; }
+
+  .bday-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 4vw, 2.5rem);
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(212,168,83,0.6);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+    animation: nameGlow 2s ease-in-out infinite alternate;
+  }
+
+  .header-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(3rem, 8vw, 7rem);
+    color: var(--blush);
+    text-shadow: 0 0 40px rgba(232,160,168,0.6), 0 0 80px rgba(192,86,107,0.3);
+    letter-spacing: 0.02em;
+    animation: nameGlow 3s ease-in-out infinite alternate;
+    line-height: 1.1;
+  }
+
+  .header-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+    margin-top: 0.5rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 2.5rem auto;
+    width: min(400px, 80vw);
+  }
+  .divider-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+  .divider-heart { color: var(--deep-rose); font-size: 1.2rem; animation: heartbeat 1.5s ease-in-out infinite; }
+
+  .open-btn {
+    position: relative;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--dark);
+    background: linear-gradient(135deg, var(--gold), #f0c96a, var(--gold));
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 30px rgba(212,168,83,0.4), 0 0 0 1px rgba(212,168,83,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+  .open-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent 60%);
+    border-radius: 50px;
+  }
+  .open-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 40px rgba(212,168,83,0.6); }
+  .open-btn:active { transform: scale(0.97); }
+
+  .floating-hearts { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+  #message-page { padding: 2rem; }
+
+  .message-card {
+    background: rgba(253,245,239,0.07);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(232,160,168,0.25);
+    border-radius: 24px;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    max-width: min(640px, 92vw);
+    max-height: 88vh;
+    overflow-y: auto;
+    width: 100%;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    text-align: center;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232,160,168,0.3) transparent;
+  }
+  .message-card::-webkit-scrollbar { width: 4px; }
+  .message-card::-webkit-scrollbar-track { background: transparent; }
+  .message-card::-webkit-scrollbar-thumb { background: rgba(232,160,168,0.3); border-radius: 4px; }
+  .message-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rose), var(--gold), var(--rose), transparent);
+  }
+
+  .msg-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--blush);
+    margin-bottom: 1.5rem;
+  }
+
+  .msg-body {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: rgba(245,208,216,0.9);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+
+  .surprise-btn {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--cream);
+    background: linear-gradient(135deg, var(--deep-rose), #a03050, var(--deep-rose));
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 25px rgba(192,86,107,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .surprise-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 35px rgba(192,86,107,0.55); }
+  .surprise-btn:active { transform: scale(0.97); }
+
+  .back-btn {
+    margin-top: 1.5rem;
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: rgba(232,160,168,0.5);
+    background: none; border: none; cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--rose); }
+
+  #surprise-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0;
+  }
+  #surprise-overlay.show {
+    pointer-events: all;
+    animation: overlayIn 0.6s ease forwards;
+  }
+  #surprise-overlay.hiding {
+    animation: overlayOut 0.5s ease forwards;
+  }
+
+  .overlay-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(42,21,32,0.97) 0%, rgba(15,5,10,0.99) 100%);
+  }
+
+  .surprise-content {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    animation: popIn 0.7s cubic-bezier(0.175,0.885,0.32,1.275) 0.3s both;
+  }
+
+  .surprise-emoji {
+    font-size: clamp(4rem, 15vw, 8rem);
+    display: block;
+    animation: emojiWiggle 0.5s ease 1s both;
+    margin-bottom: 1rem;
+  }
+
+  .surprise-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(2rem, 7vw, 5rem);
+    color: var(--rose);
+    text-shadow: 0 0 40px rgba(232,160,168,0.5);
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .surprise-msg {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: var(--blush);
+    opacity: 0.85;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .close-overlay-btn {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--dark);
+    background: var(--gold);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .close-overlay-btn:hover { transform: scale(1.05); opacity: 0.9; }
+
+  .confetti-piece {
+    position: fixed; z-index: 101;
+    pointer-events: none;
+    border-radius: 3px;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes nameGlow {
+    from { text-shadow: 0 0 30px rgba(232,160,168,0.5), 0 0 60px rgba(192,86,107,0.2); }
+    to   { text-shadow: 0 0 50px rgba(232,160,168,0.8), 0 0 100px rgba(192,86,107,0.5), 0 0 150px rgba(232,160,168,0.2); }
+  }
+  @keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+  }
+  @keyframes overlayIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes overlayOut {
+    from { opacity: 1; } to { opacity: 0; }
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5) translateY(40px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  @keyframes emojiWiggle {
+    0%   { transform: rotate(-10deg); }
+    25%  { transform: rotate(10deg); }
+    50%  { transform: rotate(-7deg); }
+    75%  { transform: rotate(7deg); }
+    100% { transform: rotate(0); }
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes floatHeart {
+    0%   { transform: translateY(0) scale(1); opacity: 0.7; }
+    100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="floating-hearts" id="floating-hearts"></div>
+
+<!-- HOME -->
+<div class="page active" id="home">
+  <div class="bday-text">🎂 Happy Birthday 🎂</div>
+  <div class="header-name">Halima Tuj Sumaiya</div>
+  <div class="header-subtitle">🎉 Wishing you the most beautiful day ✨</div>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-heart">♥</div>
+    <div class="divider-line"></div>
+  </div>
+  <button class="open-btn" onclick="openMessage()">💌 Open My Message</button>
+</div>
+
+<!-- MESSAGE PAGE -->
+<div class="page" id="message-page">
+  <div class="message-card">
+    <div class="msg-title">🎂 Happy Birthday Bou 💜</div>
+    <div class="msg-body">
+      I pray that you always stay happy and may all your dreams come true 🥹<br><br>
+      You deserve a thank you for coming into my life and supporting me so nicely 🫶😭<br><br>
+      I know I'm out of your expectations 😞, but the way you love me now ❤️🩹 — please always love me the same way 💜🙌<br><br>
+      I have just one wish — to always be with you and celebrate all your upcoming birthdays with you 😩🫶<br>
+      Will you stay with me? 🐱🤌<br><br>
+      The birthday wish may be small 💔, but wishing you a very nice Happy Birthday 😭🙌<br><br>
+      Overall, I love you so so much, even though sometimes I say silly things and hurt you 💔😞<br>
+      But still I love you so muchhhh…. ❤️🩹🫶<br><br>
+      Again wishing you a <strong>Happy Birthday</strong> and love youuu 😭💜😭
+    </div>
+    <button class="surprise-btn" onclick="showSurprise()">🎁 Click for Surprise</button>
+    <br>
+    <button class="back-btn" onclick="goHome()">← Back</button>
+  </div>
+</div>
+
+<!-- SURPRISE OVERLAY -->
+<div id="surprise-overlay">
+  <div class="overlay-bg" onclick="hideSurprise()"></div>
+  <div class="surprise-content">
+    <span class="surprise-emoji">😓</span>
+    <div class="surprise-title">Sorry boww-jan!</div>
+    <div class="surprise-msg">There's no surprise for now... 😓💔</div>
+    <button class="close-overlay-btn" onclick="hideSurprise()">Okay Fine 🙈</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.r = Math.random() * 2 + 0.5;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.alpha = Math.random() * 0.6 + 0.1;
+    this.color = Math.random() > 0.5 ? '#e8a0a8' : '#d4a853';
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+const blobs = [
+  { x: 0.2, y: 0.3, r: 0.35, c: 'rgba(192,86,107,0.12)' },
+  { x: 0.8, y: 0.7, r: 0.3,  c: 'rgba(212,168,83,0.08)' },
+  { x: 0.5, y: 0.5, r: 0.45, c: 'rgba(232,160,168,0.07)' },
+  { x: 0.1, y: 0.85,r: 0.25, c: 'rgba(192,86,107,0.09)' },
+];
+let t = 0;
+
+function drawBg() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#1a0a12';
+  ctx.fillRect(0, 0, W, H);
+
+  blobs.forEach((b, i) => {
+    const pulse = Math.sin(t * 0.5 + i * 1.2) * 0.04;
+    const grd = ctx.createRadialGradient(b.x*W, b.y*H, 0, b.x*W, b.y*H, (b.r+pulse)*Math.max(W,H));
+    grd.addColorStop(0, b.c);
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+  });
+
+  particles.forEach(p => { p.update(); p.draw(); });
+
+  ctx.strokeStyle = 'rgba(232,160,168,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 80) {
+        ctx.globalAlpha = (1 - dist / 80) * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+  t += 0.016;
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+const heartsContainer = document.getElementById('floating-hearts');
+function spawnHeart() {
+  const heart = document.createElement('div');
+  const hearts = ['♥','❤','💖','💗','💕','🌹'];
+  heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  heart.style.cssText = `
+    position: absolute;
+    left: ${Math.random() * 100}%;
+    bottom: -2rem;
+    font-size: ${Math.random() * 1.2 + 0.6}rem;
+    opacity: 0.4;
+    color: ${Math.random() > 0.5 ? '#e8a0a8' : '#d4a853'};
+    animation: floatHeart ${Math.random() * 6 + 6}s ease-in forwards;
+    pointer-events: none;
+  `;
+  heartsContainer.appendChild(heart);
+  setTimeout(() => heart.remove(), 12000);
+}
+setInterval(spawnHeart, 700);
+
+function goHome() {
+  document.getElementById('message-page').classList.remove('active');
+  document.getElementById('home').classList.add('active');
+}
+
+function openMessage() {
+  document.getElementById('home').classList.remove('active');
+  document.getElementById('message-page').classList.add('active');
+}
+
+function showSurprise() {
+  const overlay = document.getElementById('surprise-overlay');
+  overlay.classList.remove('hiding');
+  overlay.classList.add('show');
+  launchConfetti();
+}
+
+function hideSurprise() {
+  const overlay = document.getElementById('surprise-overlay');
+  overlay.classList.add('hiding');
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    overlay.classList.remove('hiding');
+  }, 500);
+}
+
+function launchConfetti() {
+  const colors = ['#e8a0a8','#d4a853','#f0c96a','#c0566b','#fdf5ef','#a0c8e8'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      const size = Math.random() * 8 + 4;
+      c.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        width: ${size}px; height: ${size * (Math.random() > 0.5 ? 1 : 2.5)}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        opacity: ${Math.random() * 0.7 + 0.3};
+        animation-duration: ${Math.random() * 2 + 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, i * 30);
+  }
+}
+</script>
+</body>
+</html>
